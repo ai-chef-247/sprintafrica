@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Africa AI Summit — Free. Online. Registration Required.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --black:#080705;
+    --dark:#0f0d0a;
+    --card:#161310;
+    --card2:#1c1916;
+    --amber:#F59E0B;
+    --cream:#FDF6E3;
+    --muted:#6B6560;
+    --text:#C8BCA8;
+    --border:rgba(255,255,255,0.06);
+    --green:#10B981;
+    --fire:#EF4444;
+  }
+  html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;}
+
+  /* CURSOR */
+  .cursor{position:fixed;width:8px;height:8px;background:var(--amber);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:difference;}
+  .cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(245,158,11,0.3);border-radius:50%;pointer-events:none;z-index:9998;transition:all 0.12s ease;}
+
+  /* NOISE */
+  body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:800;opacity:0.5;}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);z-index:600;background:var(--card2);border:1px solid rgba(245,158,11,0.2);border-radius:100px;padding:12px 22px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);white-space:nowrap;transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1),opacity 0.5s ease;opacity:0;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(8,7,5,0.95),transparent);backdrop-filter:blur(8px);}
+  .nav-left{display:flex;flex-direction:column;gap:2px;}
+  .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--cream);line-height:1;}
+  .nav-logo span{color:var(--amber);}
+  .nav-powered{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .nav-powered a{color:var(--muted);text-decoration:none;transition:color 0.2s;}
+  .nav-powered a:hover{color:var(--amber);}
+  .nav-cta{background:var(--amber);color:var(--black);font-family:'Syne',sans-serif;font-weight:800;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 22px;border:none;border-radius:2px;cursor:none;transition:all 0.2s;}
+  .nav-cta:hover{background:var(--cream);transform:translateY(-1px);}
+
+  /* HERO */
+  #hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
+
+  .glow-top{position:absolute;top:-10%;left:50%;transform:translateX(-50%);width:1000px;height:700px;background:radial-gradient(ellipse,rgba(139,69,19,0.14) 0%,transparent 60%);pointer-events:none;}
+  .glow-bottom{position:absolute;bottom:-20%;right:0%;width:500px;height:500px;background:radial-gradient(circle,rgba(245,158,11,0.05) 0%,transparent 65%);pointer-events:none;animation:drift 14s ease-in-out infinite alternate;}
+  @keyframes drift{from{transform:translate(0,0);}to{transform:translate(-30px,-20px);}}
+
+  .ring{position:absolute;border-radius:50%;pointer-events:none;}
+  .ring-1{width:580px;height:580px;top:50%;left:50%;border:1px solid rgba(245,158,11,0.06);animation:spin 35s linear infinite;}
+  .ring-2{width:900px;height:900px;top:50%;left:50%;border:1px solid rgba(245,158,11,0.025);animation:spin 55s linear infinite reverse;}
+  @keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+  .ring-1{transform:translate(-50%,-50%);}
+  .ring-2{transform:translate(-50%,-50%);}
+  .ring-1::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--amber);opacity:0.8;}
+
+  .hero-content{position:relative;z-index:2;max-width:860px;}
+
+  /* Summit badge */
+  .summit-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:100px;padding:8px 20px;margin-bottom:36px;opacity:0;animation:fadeUp 0.8s ease 0.2s forwards;}
+  .summit-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 2s ease-in-out infinite;}
+  .summit-badge-text{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--amber);}
+
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+  .hero-headline{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(42px,7.5vw,96px);line-height:0.93;letter-spacing:-2px;color:var(--cream);margin-bottom:28px;opacity:0;animation:fadeUp 0.9s ease 0.4s forwards;}
+  .hero-headline em{font-style:italic;color:var(--amber);}
+  .hero-headline .ghost{color:transparent;-webkit-text-stroke:1px rgba(232,220,200,0.15);display:block;}
+
+  .hero-sub{font-size:clamp(16px,2vw,20px);font-weight:300;line-height:1.75;color:var(--muted);max-width:560px;margin:0 auto 16px;opacity:0;animation:fadeUp 0.9s ease 0.6s forwards;}
+
+  /* Free badge row */
+  .hero-tags{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:44px;opacity:0;animation:fadeUp 0.9s ease 0.75s forwards;}
+  .hero-tag{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:2px;}
+  .tag-free{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+  .tag-online{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+  .tag-reg{background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--border);}
+
+  .cta-block{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;animation:fadeUp 0.9s ease 0.9s forwards;}
+
+  .btn-main{background:var(--amber);color:var(--black);font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:20px 64px;border:none;border-radius:2px;cursor:none;transition:all 0.3s;position:relative;overflow:hidden;}
+  .btn-main::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.2) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.5s ease;}
+  .btn-main:hover{background:var(--cream);transform:translateY(-3px);box-shadow:0 24px 48px rgba(245,158,11,0.35);}
+  .btn-main:hover::before{transform:translateX(100%);}
+
+  .cta-sub{font-size:12px;color:var(--muted);}
+  .cta-sub strong{color:var(--text);}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+  /* DIVIDER LINE */
+  .divider{width:1px;height:80px;background:linear-gradient(to bottom,transparent,rgba(245,158,11,0.25),transparent);margin:0 auto;}
+
+  /* SHARED */
+  .section-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .section-eyebrow.center{justify-content:center;}
+  .section-eyebrow.center::before,.section-eyebrow.center::after{content:'';display:block;width:24px;height:1px;background:var(--border);}
+
+  /* WHAT IS THE SUMMIT */
+  #what{padding:100px 24px;display:flex;justify-content:center;}
+  .what-inner{max-width:720px;width:100%;text-align:center;}
+  .what-headline{font-family:'Playfair Display',serif;font-size:clamp(30px,4.5vw,54px);font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:20px;letter-spacing:-1px;}
+  .what-headline em{color:var(--amber);font-style:italic;}
+  .what-body{font-size:17px;line-height:1.9;color:var(--muted);}
+  .what-body strong{color:var(--text);}
+
+  /* THREE PILLARS */
+  #pillars{padding:0 24px 100px;display:flex;justify-content:center;}
+  .pillars-inner{max-width:860px;width:100%;}
+  .pillars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:48px;}
+  .pillar{background:var(--card);padding:36px 28px;position:relative;overflow:hidden;transition:background 0.3s;}
+  .pillar::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;transform:scaleX(0);transform-origin:left;transition:transform 0.4s ease;}
+  .pillar:nth-child(1)::after{background:var(--green);}
+  .pillar:nth-child(2)::after{background:var(--amber);}
+  .pillar:nth-child(3)::after{background:var(--fire);}
+  .pillar:hover{background:var(--card2);}
+  .pillar:hover::after{transform:scaleX(1);}
+  .pillar-icon{font-size:32px;margin-bottom:20px;display:block;}
+  .pillar-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--cream);margin-bottom:10px;}
+  .pillar-desc{font-size:14px;color:var(--muted);line-height:1.7;}
+
+  /* WHAT TO EXPECT */
+  #expect{background:var(--dark);padding:100px 24px;display:flex;justify-content:center;}
+  .expect-inner{max-width:860px;width:100%;}
+  .expect-header{margin-bottom:52px;}
+  .expect-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;color:var(--cream);letter-spacing:-1px;margin-bottom:12px;}
+  .expect-sub{font-size:15px;color:var(--muted);max-width:500px;line-height:1.7;}
+  .expect-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+  .expect-item{background:var(--card);padding:28px 28px;display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:start;transition:background 0.3s;}
+  .expect-item:hover{background:var(--card2);}
+  .expect-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:rgba(245,158,11,0.2);line-height:1;}
+  .expect-content{}
+  .expect-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--cream);margin-bottom:6px;}
+  .expect-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+
+  /* SPEAKERS TEASER */
+  #speakers{padding:100px 24px;display:flex;justify-content:center;}
+  .speakers-inner{max-width:720px;width:100%;text-align:center;}
+  .speakers-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;color:var(--cream);letter-spacing:-1px;margin-bottom:16px;}
+  .speakers-title em{color:var(--amber);font-style:italic;}
+  .speakers-body{font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:40px;}
+  .speakers-body strong{color:var(--text);}
+  /* Mystery speaker cards */
+  .speaker-cards{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+  .speaker-card{width:100px;height:120px;background:var(--card);border:1px solid var(--border);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all 0.3s;cursor:none;}
+  .speaker-card:hover{border-color:rgba(245,158,11,0.3);transform:translateY(-4px);}
+  .speaker-card-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(139,69,19,0.15));display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .speaker-card-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .speakers-announce{font-size:12px;color:var(--muted);letter-spacing:1px;}
+
+  /* WHAT HAPPENS NEXT — phases teaser */
+  #phases{background:var(--dark);padding:100px 24px;display:flex;justify-content:center;}
+  .phases-inner{max-width:860px;width:100%;}
+  .phases-header{text-align:center;margin-bottom:52px;}
+  .phases-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;color:var(--cream);letter-spacing:-1px;margin-bottom:12px;}
+  .phases-sub{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto;line-height:1.7;}
+  .phases-row{display:grid;grid-template-columns:repeat(3,1fr);position:relative;}
+  .phases-row::before{content:'';position:absolute;top:28px;left:16.5%;width:67%;height:1px;background:linear-gradient(to right,transparent,rgba(245,158,11,0.2),rgba(245,158,11,0.2),transparent);}
+  .phase{padding:0 24px;text-align:center;}
+  .phase-circle{width:56px;height:56px;border-radius:50%;border:1px solid rgba(245,158,11,0.2);background:var(--card);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--amber);position:relative;z-index:1;transition:all 0.3s;}
+  .phase:hover .phase-circle{background:var(--amber);color:var(--black);border-color:var(--amber);}
+  .phase-number{display:block;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .phase-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--cream);margin-bottom:8px;}
+  .phase-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+  /* Active phase */
+  .phase.active .phase-circle{background:var(--amber);color:var(--black);border-color:var(--amber);}
+  .phase.active .phase-name{color:var(--amber);}
+  .phase-tag{display:inline-block;margin-top:10px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+  .tag-now{background:rgba(16,185,129,0.12);color:var(--green);}
+  .tag-next{background:rgba(255,255,255,0.04);color:var(--muted);}
+
+  /* WHO */
+  #who{padding:100px 24px;display:flex;justify-content:center;}
+  .who-inner{max-width:720px;width:100%;text-align:center;}
+  .who-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;color:var(--cream);letter-spacing:-1px;margin-bottom:40px;}
+  .who-title em{color:var(--amber);font-style:italic;}
+  .who-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;}
+  .who-chip{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;padding:10px 18px;background:var(--card);border:1px solid var(--border);border-radius:2px;color:var(--text);transition:all 0.3s;cursor:none;}
+  .who-chip:hover{border-color:rgba(245,158,11,0.3);color:var(--amber);}
+  .who-note{font-size:14px;color:var(--muted);line-height:1.7;}
+  .who-note strong{color:var(--text);}
+
+  /* REGISTER */
+  #register{padding:140px 24px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+  #register::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:1px;height:100px;background:linear-gradient(to bottom,transparent,rgba(245,158,11,0.3));}
+  .reg-glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(139,69,19,0.1) 0%,transparent 70%);pointer-events:none;}
+  .reg-inner{max-width:520px;width:100%;text-align:center;position:relative;}
+  .reg-headline{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,68px);font-weight:900;line-height:1.0;color:var(--cream);margin-bottom:14px;letter-spacing:-1.5px;}
+  .reg-headline em{color:var(--amber);font-style:italic;}
+  .reg-sub{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:44px;}
+
+  /* FORM */
+  .form-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:36px;text-align:left;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-group{display:flex;flex-direction:column;gap:7px;}
+  .form-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .form-input,.form-select{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:2px;padding:13px 14px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;cursor:none;transition:border-color 0.2s;width:100%;-webkit-appearance:none;}
+  .form-input::placeholder{color:rgba(255,255,255,0.15);}
+  .form-input:focus,.form-select:focus{border-color:rgba(245,158,11,0.4);}
+  .form-select option{background:#161310;}
+  .form-full{margin-bottom:12px;}
+  .submit-btn{width:100%;margin-top:8px;background:var(--amber);color:var(--black);font-family:'Syne',sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:18px;border:none;border-radius:2px;cursor:none;transition:all 0.3s;position:relative;overflow:hidden;}
+  .submit-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.2) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.5s;}
+  .submit-btn:hover{background:var(--cream);transform:translateY(-2px);box-shadow:0 16px 40px rgba(245,158,11,0.35);}
+  .submit-btn:hover::before{transform:translateX(100%);}
+  .form-note{margin-top:14px;text-align:center;font-size:11px;color:rgba(255,255,255,0.18);line-height:1.6;}
+  .wa-link{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding:13px;border:1px solid rgba(255,255,255,0.05);border-radius:2px;text-decoration:none;color:var(--muted);font-size:13px;transition:all 0.3s;cursor:none;}
+  .wa-link:hover{border-color:rgba(37,211,102,0.3);color:var(--text);}
+
+  /* SUCCESS */
+  .success-state{display:none;text-align:center;padding:20px 0;}
+  .success-icon{font-size:56px;display:block;margin-bottom:20px;}
+  .success-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--cream);margin-bottom:12px;}
+  .success-body{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:28px;}
+
+  /* FOOTER */
+  footer{padding:40px 48px;border-top:1px solid var(--border);}
+  .footer-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:32px;}
+  .footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--cream);}
+  .footer-logo span{color:var(--amber);}
+  .footer-tagline{font-size:13px;color:var(--muted);margin-top:4px;}
+  .footer-powered{text-align:right;}
+  .footer-powered-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .footer-powered-name{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--text);}
+  .footer-powered-name span{color:var(--amber);}
+  .footer-powered-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px;}
+  .footer-copy{font-size:11px;color:rgba(255,255,255,0.15);}
+  .footer-links{display:flex;gap:24px;}
+  .footer-links a{font-size:11px;color:rgba(255,255,255,0.2);text-decoration:none;transition:color 0.2s;}
+  .footer-links a:hover{color:var(--amber);}
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.9s ease,transform 0.9s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .d1{transition-delay:0.1s;}.d2{transition-delay:0.2s;}.d3{transition-delay:0.3s;}.d4{transition-delay:0.4s;}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    nav{padding:16px 20px;}
+    .nav-powered{display:none;}
+    .pillars-grid,.expect-grid,.phases-row{grid-template-columns:1fr;}
+    .phases-row::before{display:none;}
+    .form-row{grid-template-columns:1fr;}
+    .form-card{padding:24px 18px;}
+    footer{padding:32px 20px;}
+    .footer-powered{text-align:left;}
+    .ring-1{width:320px;height:320px;}
+    .ring-2{width:520px;height:520px;}
+    .speaker-cards{gap:8px;}
+    .speaker-card{width:80px;height:96px;}
+  }
+
+  /* JOTFORM EMBED */
+  .jotform-wrapper{
+    width:100%;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .jotform-wrapper iframe{
+    width:100%;
+    min-width:100%;
+    height:700px;
+    border:none;
+    display:block;
+    /* Override Jotform white background with a filter trick */
+    filter:none;
+  }
+</style>
+  <script src="https://cdn.jotfor.ms/s/umd/latest/for-form-embed-handler.js"></script>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- TOAST -->
+<div id="toast">
+  <div class="toast-dot"></div>
+  <span id="toastFlag">🇳🇬</span>
+  <span id="toastText">Someone from Lagos just registered</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-logo">Sprint<span>Africa</span></div>
+    <div class="nav-powered">Powered by <a href="https://aichefconsulting.com" target="_blank">AI Chef Consulting</a></div>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('register').scrollIntoView({behavior:'smooth'})">Register Free →</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+
+  <div class="hero-content">
+    <div class="summit-badge">
+      <div class="summit-badge-dot"></div>
+      <div class="summit-badge-text">Sprint Africa AI Summit · 2026 · Online</div>
+    </div>
+
+    <h1 class="hero-headline">
+      The AI summit<br>
+      <em>Africa deserves.</em><br>
+      <span class="ghost">Finally here.</span>
+    </h1>
+
+    <p class="hero-sub">
+      One day. World-class speakers. Zero fluff.<br>
+      Built specifically for African professionals and students who are ready to build — not just watch.
+    </p>
+
+    <div class="hero-tags">
+      <span class="hero-tag tag-free">Free to attend</span>
+      <span class="hero-tag tag-online">100% online</span>
+      <span class="hero-tag tag-reg">Registration required</span>
+    </div>
+
+    <div class="cta-block">
+      <button class="btn-main" onclick="document.getElementById('register').scrollIntoView({behavior:'smooth'})">
+        Register for Free
+      </button>
+      <div class="cta-sub">Date announced to registered attendees first. <strong>Don't miss it.</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT IS THE SUMMIT -->
+<div class="divider"></div>
+<section id="what">
+  <div class="what-inner">
+    <div class="section-eyebrow center reveal">What is this</div>
+    <h2 class="what-headline reveal">Not another webinar.<br><em>A turning point.</em></h2>
+    <p class="what-body reveal">
+      Most AI events talk <em>about</em> the future. This one <strong>equips you for it.</strong>
+      <br><br>
+      The Sprint Africa AI Summit brings together world-class AI practitioners — people who build, ship, and lead with AI every day — to share what's actually working. Every session is practical. Every speaker answers one question: <strong>what can someone in Africa use tomorrow?</strong>
+    </p>
+  </div>
+</section>
+
+<!-- THREE PILLARS -->
+<section id="pillars">
+  <div class="pillars-inner">
+    <div class="pillars-grid">
+      <div class="pillar reveal d1">
+        <span class="pillar-icon">🎯</span>
+        <div class="pillar-title">Ruthlessly Practical</div>
+        <div class="pillar-desc">No motivational speeches. No vague predictions. Every session ends with something you can implement — a tool, a workflow, a framework you can use that same day.</div>
+      </div>
+      <div class="pillar reveal d2">
+        <span class="pillar-icon">🌍</span>
+        <div class="pillar-title">Africa-Specific</div>
+        <div class="pillar-desc">AI for your context. Healthcare without hospitals. Finance without traditional banks. Agriculture without tractors. Real African challenges with real AI solutions.</div>
+      </div>
+      <div class="pillar reveal d3">
+        <span class="pillar-icon">🔗</span>
+        <div class="pillar-title">Globally Connected</div>
+        <div class="pillar-desc">Speakers from the frontlines of AI — practitioners at the world's leading AI companies, plus African builders who've already made it. The room you've been trying to get into.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT TO EXPECT -->
+<section id="expect">
+  <div class="expect-inner">
+    <div class="expect-header reveal">
+      <div class="section-eyebrow">What to expect</div>
+      <h2 class="expect-title">One day.<br>Lasting impact.</h2>
+      <p class="expect-sub">Here's exactly what the summit delivers — no filler, no fluff.</p>
+    </div>
+    <div class="expect-grid">
+      <div class="expect-item reveal d1">
+        <div class="expect-num">01</div>
+        <div class="expect-content">
+          <div class="expect-name">World-Class Speaker Sessions</div>
+          <div class="expect-desc">3–6 hand-picked speakers from the global AI industry. 30 minutes each — max. Every session includes live Q&A. You leave with answers, not more questions.</div>
+        </div>
+      </div>
+      <div class="expect-item reveal d2">
+        <div class="expect-num">02</div>
+        <div class="expect-content">
+          <div class="expect-name">Live Tool Demonstrations</div>
+          <div class="expect-desc">Watch practitioners build in real time. See the exact tools and workflows they use — not slides about tools, but actual hands-on demos you can replicate immediately.</div>
+        </div>
+      </div>
+      <div class="expect-item reveal d1">
+        <div class="expect-num">03</div>
+        <div class="expect-content">
+          <div class="expect-name">The African AI Opportunity</div>
+          <div class="expect-desc">A frank conversation about where the real opportunities are on the continent — the problems worth solving, the sectors about to be disrupted, and how to position yourself now.</div>
+        </div>
+      </div>
+      <div class="expect-item reveal d2">
+        <div class="expect-num">04</div>
+        <div class="expect-content">
+          <div class="expect-name">Community & Connection</div>
+          <div class="expect-desc">Meet other African builders, students, and professionals who share your ambition. The community you build here outlasts the summit itself.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPEAKERS TEASER -->
+<section id="speakers">
+  <div class="speakers-inner">
+    <div class="section-eyebrow center reveal">The Speakers</div>
+    <h2 class="speakers-title reveal">The people in this room<br><em>don't do average.</em></h2>
+    <p class="speakers-body reveal">
+      We're bringing together <strong>3 to 6 world-class AI practitioners</strong> — the kind of people whose work has shaped how the world thinks about and builds with AI. People who've built real things, led real teams, and solved real problems.
+      <br><br>
+      Speaker announcements coming soon. Register now — confirmed attendees get the announcement first.
+    </p>
+    <div class="speaker-cards reveal">
+      <div class="speaker-card"><div class="speaker-card-avatar">🔒</div><div class="speaker-card-label">Coming soon</div></div>
+      <div class="speaker-card"><div class="speaker-card-avatar">🔒</div><div class="speaker-card-label">Coming soon</div></div>
+      <div class="speaker-card"><div class="speaker-card-avatar">🔒</div><div class="speaker-card-label">Coming soon</div></div>
+      <div class="speaker-card"><div class="speaker-card-avatar">🔒</div><div class="speaker-card-label">Coming soon</div></div>
+    </div>
+    <div class="speakers-announce reveal">Speaker announcements drop to registered attendees first.</div>
+  </div>
+</section>
+
+<!-- PHASES — brief teaser -->
+<section id="phases">
+  <div class="phases-inner">
+    <div class="phases-header reveal">
+      <div class="section-eyebrow center">This is just the beginning</div>
+      <h2 class="phases-title">The summit is Phase 1.<br>Here's what comes next.</h2>
+      <p class="phases-sub">Sprint Africa is a movement in three acts. The summit is where it starts — but where it goes is far bigger.</p>
+    </div>
+    <div class="phases-row">
+      <div class="phase active reveal d1">
+        <div class="phase-circle">1</div>
+        <span class="phase-number">Phase One</span>
+        <div class="phase-name">The Summit</div>
+        <div class="phase-desc">Free. Online. One day of world-class AI education built for Africa.</div>
+        <span class="phase-tag tag-now">Open now</span>
+      </div>
+      <div class="phase reveal d2">
+        <div class="phase-circle">2</div>
+        <span class="phase-number">Phase Two</span>
+        <div class="phase-name">The Cohort</div>
+        <div class="phase-desc">A 3-week online program. You identify a problem. You build your first AI prototype.</div>
+        <span class="phase-tag tag-next">Coming 2026</span>
+      </div>
+      <div class="phase reveal d3">
+        <div class="phase-circle">3</div>
+        <span class="phase-number">Phase Three</span>
+        <div class="phase-name">The Sprint</div>
+        <div class="phase-desc">5 days in Lagos and Abuja. Teams build real products. Demo Day. In person.</div>
+        <span class="phase-tag tag-next">Coming 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<section id="who">
+  <div class="who-inner">
+    <div class="section-eyebrow center reveal">Who should register</div>
+    <h2 class="who-title reveal">If Africa is your context,<br><em>this is your summit.</em></h2>
+    <div class="who-chips reveal">
+      <div class="who-chip">Students & Graduates</div>
+      <div class="who-chip">Young Professionals</div>
+      <div class="who-chip">Entrepreneurs & Founders</div>
+      <div class="who-chip">Executives & Directors</div>
+      <div class="who-chip">Educators & Researchers</div>
+      <div class="who-chip">Diaspora — Nigeria & beyond</div>
+      <div class="who-chip">Anyone curious about AI</div>
+    </div>
+    <p class="who-note reveal">
+      No technical background required. <strong>If you have a problem you care about solving, you belong here.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section id="register">
+  <div class="reg-glow"></div>
+  <div class="reg-inner">
+    <div class="section-eyebrow center reveal">Free Registration</div>
+    <h2 class="reg-headline reveal">
+      Save your<br>
+      <em>seat.</em>
+    </h2>
+    <p class="reg-sub reveal">
+      Free to attend. Registration required. Date announced to registered attendees first — sign up now so you don't miss it.
+    </p>
+
+    <!-- Jotform embed -->
+    <div class="jotform-wrapper reveal">
+      <iframe
+        id="JotFormIFrame-261015544164147"
+        title="Sprint Africa AI Summit Registration Form"
+        allowtransparency="true"
+        allow="geolocation; microphone; camera; fullscreen; payment"
+        src="https://form.jotform.com/261015544164147"
+        frameborder="0"
+        scrolling="no"
+      ></iframe>
+    </div>
+
+
+    <div style="margin-top:16px;max-width:520px;margin-left:auto;margin-right:auto;" class="reveal">
+      <a href="https://wa.me/2349053760378" class="wa-link" target="_blank">
+        <span>💬</span><span>Join the WhatsApp community while you wait</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">Sprint<span>Africa</span></div>
+      <div class="footer-tagline">Preparing Africa's talent for the AI era.</div>
+    </div>
+    <div class="footer-powered">
+      <div class="footer-powered-label">Powered by</div>
+      <div class="footer-powered-name"><a href="https://aichefconsulting.com" target="_blank" style="text-decoration:none;color:inherit;">AI <span>Chef</span> Consulting</a></div>
+      <div class="footer-powered-sub">aichefconsulting.com</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Sprint Africa. A program by AI Chef Consulting LLC.</div>
+    <div class="footer-links">
+      <a href="https://aichefconsulting.com" target="_blank">AI Chef Consulting</a>
+      <a href="https://www.youtube.com/@AIChef247" target="_blank">YouTube</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function ani(){cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;ring.style.left=rx-16+'px';ring.style.top=ry-16+'px';requestAnimationFrame(ani);})();
+  document.querySelectorAll('button,a,input,select').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.transform='scale(2.5)';ring.style.transform='scale(1.6)';ring.style.borderColor='rgba(245,158,11,0.6)';});
+    el.addEventListener('mouseleave',()=>{cursor.style.transform='scale(1)';ring.style.transform='scale(1)';ring.style.borderColor='rgba(245,158,11,0.3)';});
+  });
+
+  // Scroll reveals
+  const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Toast
+  const toasts=[
+    {flag:'🇳🇬',text:'Someone from Lagos just registered'},
+    {flag:'🇳🇬',text:'Someone from Abuja just registered'},
+    {flag:'🇳🇬',text:'A student from Ibadan just signed up'},
+    {flag:'🇬🇭',text:'Someone from Accra just registered'},
+    {flag:'🇰🇪',text:'Someone from Nairobi just registered'},
+    {flag:'🇿🇦',text:'Someone from Johannesburg just registered'},
+    {flag:'🇺🇸',text:'A diaspora member just registered from the US'},
+    {flag:'🇬🇧',text:'A diaspora member just registered from the UK'},
+    {flag:'🇨🇦',text:'Someone from Toronto just signed up'},
+    {flag:'🇳🇬',text:'An entrepreneur from Lagos just registered'},
+    {flag:'🇳🇬',text:'A healthcare professional from Nigeria just signed up'},
+  ];
+  const toastEl=document.getElementById('toast');
+  const toastFlag=document.getElementById('toastFlag');
+  const toastText=document.getElementById('toastText');
+  let toastBusy=false;
+  function showToast(){
+    if(toastBusy)return;
+    const t=toasts[Math.floor(Math.random()*toasts.length)];
+    toastFlag.textContent=t.flag;
+    toastText.textContent=t.text;
+    toastEl.classList.add('show');
+    toastBusy=true;
+    setTimeout(()=>{toastEl.classList.remove('show');setTimeout(()=>{toastBusy=false;},600);},4000);
+  }
+  setTimeout(()=>{showToast();setInterval(()=>{if(Math.random()>0.3)showToast();},28000+Math.random()*20000);},8000);
+
+
+</script>
+  <script>
+    // Jotform embed handler — runs after page and jotform script are both loaded
+    window.addEventListener('load', function() {
+      if (typeof window.jotformEmbedHandler === 'function') {
+        window.jotformEmbedHandler("iframe[id='JotFormIFrame-261015544164147']", "https://form.jotform.com/");
+      }
+    });
+  </script>
+</body>
+</html>
