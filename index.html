@@ -277,6 +277,68 @@
     /* Override Jotform white background with a filter trick */
     filter:none;
   }
+
+  /* THANK YOU OVERLAY */
+  #thankyou-overlay{
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(8,7,5,0.97);
+    z-index:700;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+  }
+  #thankyou-overlay.show{display:flex;}
+  .ty-card{
+    max-width:520px;width:100%;
+    background:var(--card);
+    border:1px solid rgba(245,158,11,0.2);
+    border-radius:4px;
+    padding:52px 40px;
+    position:relative;
+  }
+  .ty-icon{font-size:64px;display:block;margin-bottom:24px;}
+  .ty-title{
+    font-family:'Playfair Display',serif;
+    font-size:clamp(32px,5vw,52px);
+    font-weight:900;
+    color:var(--cream);
+    line-height:1.0;
+    margin-bottom:16px;
+    letter-spacing:-1px;
+  }
+  .ty-title em{color:var(--amber);font-style:italic;}
+  .ty-body{font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:32px;}
+  .ty-body strong{color:var(--text);}
+  .ty-wa{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:16px 24px;
+    background:rgba(37,211,102,0.08);
+    border:1px solid rgba(37,211,102,0.25);
+    border-radius:2px;
+    text-decoration:none;
+    color:var(--text);
+    font-family:'Syne',sans-serif;
+    font-size:13px;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;
+    transition:all 0.3s;
+    margin-bottom:16px;
+  }
+  .ty-wa:hover{background:rgba(37,211,102,0.15);color:var(--cream);}
+  .ty-home{
+    font-size:12px;color:var(--muted);
+    text-decoration:none;
+    letter-spacing:1px;
+    transition:color 0.2s;
+    cursor:none;
+  }
+  .ty-home:hover{color:var(--amber);}
+  /* Hide register CTA when registered */
+  body.registered .nav-cta{display:none;}
+  body.registered #register{display:none;}
+
 </style>
   <script src="https://cdn.jotfor.ms/s/umd/latest/for-form-embed-handler.js"></script>
 </head>
@@ -603,5 +665,39 @@
       }
     });
   </script>
+
+<!-- THANK YOU OVERLAY -->
+<div id="thankyou-overlay">
+  <div class="ty-card">
+    <span class="ty-icon">🌍</span>
+    <h2 class="ty-title">You're <em>in.</em></h2>
+    <p class="ty-body">
+      Your spot at the Sprint Africa AI Summit is reserved.<br>
+      <strong>Check your email</strong> — speaker announcements and the event date go to registered attendees first.
+    </p>
+    <a href="https://wa.me/2349053760378" class="ty-wa" target="_blank">
+      💬 &nbsp;Join the WhatsApp Community
+    </a>
+    <br>
+    <a href="https://www.sprintafrica.com" class="ty-home">← Back to home</a>
+  </div>
+</div>
+
+
+  <script>
+    // Detect Jotform redirect with ?registered=true
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      if(params.get('registered') === 'true'){
+        // Show thank you overlay
+        document.body.classList.add('registered');
+        const overlay = document.getElementById('thankyou-overlay');
+        if(overlay) overlay.classList.add('show');
+        // Clean URL without reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    })();
+  </script>
+
 </body>
 </html>
